@@ -3,6 +3,8 @@ pyethrecover
 
 This is a tool for those of you who've somehow lost your Ethereum wallet password. It's essentially a stripped-down version of [pyethsaletool](https://github.com/ethereum/pyethsaletool) with the additional feature of being able to read passwords in from a newline-delimited file. This will make guessing your password a lot faster!
 
+This tool requires Python 2. Maybe it will one day be ported to Python 3, but I haven't had a chance to do so yet.
+
 Summary
 =======
 
