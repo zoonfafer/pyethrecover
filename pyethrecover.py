@@ -1,13 +1,19 @@
 #!/usr/bin/python
+from __future__ import print_function
 import python_sha3
 import aes
 import os
 import sys
 import json
 import getpass
+import binascii
 import pbkdf2 as PBKDF2
 from bitcoin import *
-import urllib2
+from utils import decode_hex, encode_hex
+try:
+    from urllib2 import Request, urlopen
+except ImportError:
+    from urllib.request import Request, urlopen
 
 from optparse import OptionParser
 
@@ -45,8 +51,8 @@ def pbkdf2(x):
 
 # Makes a request to a given URL (first arg) and optional params (second arg)
 def make_request(url, data, headers):
-    req = urllib2.Request(url, data, headers)
-    return urllib2.urlopen(req).read().strip()
+    req = Request(url, data, headers)
+    return urlopen(req).read().strip()
 
 
 # Prefer openssl because it's more well-tested and reviewed; otherwise,
@@ -109,13 +115,14 @@ def tryopen(f):
 
 def eth_privtoaddr(priv):
     pub = encode_pubkey(secure_privtopub(priv), 'bin_electrum')
-    return sha3(pub)[12:].encode('hex')
+    return encode_hex(sha3(pub)[12:])
 
 
 def getseed(encseed, pw, ethaddr):
     try:
-        seed = aes.decryptData(pw, encseed.decode('hex'))
+        seed = aes.decryptData(pw, binascii.unhexlify(encseed))
         ethpriv = sha3(seed)
+        eth_privtoaddr(ethpriv)
         assert eth_privtoaddr(ethpriv) == ethaddr
     except:
         raise Exception("Decryption failed. Bad password?")
@@ -162,7 +169,7 @@ def __main__():
         except Exception as e:
             if not options.pwfile:
                 raise
-            print "x",
+            print("x", end="")
 
 if __name__ == "__main__":
     __main__()

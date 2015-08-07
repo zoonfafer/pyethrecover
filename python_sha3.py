@@ -16,7 +16,11 @@
 
 
 import math
+from utils import decode_hex, encode_hex
 
+# Python3 compatibility
+if 'xrange' not in globals():
+    xrange = range
 
 def sha3_224(data=None):
   return Keccak(c=448, r=1152, n=224, data=data)
@@ -232,7 +236,7 @@ class Keccak:
 
     self.last_digest = None
     # Convert the data into a workable format, and add it to the buffer
-    self.buffered_data += arg.encode('hex')
+    self.buffered_data += encode_hex(arg)
 
     # Absorb any blocks we can:
     if len(self.buffered_data) * 4 >= self.r:
@@ -270,7 +274,7 @@ class Keccak:
 
     # UGLY WARNING
     # Handle bytestring/hexstring conversions
-    M = _build_message_pair(self.buffered_data.decode('hex'))
+    M = _build_message_pair(decode_hex(self.buffered_data))
 
     # First finish the padding and force the final update:
     self.buffered_data = Keccak.pad10star1(M, self.r)
@@ -290,7 +294,7 @@ class Keccak:
       if outputLength > 0:
         S = KeccakF(S, verbose)
 
-    self.last_digest = Z[:2 * self.n // 8].decode('hex')
+    self.last_digest = decode_hex(Z[:2 * self.n // 8])
     return self.last_digest
 
   def hexdigest(self):
@@ -298,7 +302,7 @@ class Keccak:
 
     This may be used to exchange the value safely in email or other
     non-binary environments."""
-    return self.digest().encode('hex')
+    return encode_hex(self.digest())
 
   def copy(self):
     # First initialize whatever can be done normally
@@ -316,7 +320,7 @@ class Keccak:
 ## Generic utility functions
 
 def _build_message_pair(data):
-  hex_data = data.encode('hex')
+  hex_data = encode_hex(data)
   size = len(hex_data) * 4
   return (size, hex_data)
 

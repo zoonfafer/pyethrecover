@@ -587,6 +587,12 @@ class AESModeOfOperation(object):
         return stringOut
 
 
+def toInts(data):
+    try:
+        return list(map(ord, data))
+    except TypeError:
+        return list(map(int, data))
+
 def encryptData(key, data, mode=AESModeOfOperation.modeOfOperation["CBC"], iv=None):
     """encrypt `data` using `key`
 
@@ -596,7 +602,7 @@ def encryptData(key, data, mode=AESModeOfOperation.modeOfOperation["CBC"], iv=No
     vector.
 
     """
-    key = map(ord, key)
+    key = toInts(ord, key)
     if mode == AESModeOfOperation.modeOfOperation["CBC"]:
         data = append_PKCS7_padding(data)
     keysize = len(key)
@@ -620,12 +626,12 @@ def decryptData(key, data, mode=AESModeOfOperation.modeOfOperation["CBC"]):
 
     """
 
-    key = map(ord, key)
+    key = toInts(key)
     keysize = len(key)
     assert keysize in AES.keySize.values(), 'invalid key size: %s' % keysize
     # iv is first 16 bytes
-    iv = map(ord, data[:16])
-    data = map(ord, data[16:])
+    iv = toInts(data[:16])
+    data = toInts(data[16:])
     moo = AESModeOfOperation()
     decr = moo.decrypt(data, None, mode, key, keysize, iv)
     if mode == AESModeOfOperation.modeOfOperation["CBC"]:
