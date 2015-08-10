@@ -2,7 +2,7 @@ pyethrecover
 ============
 
 This is a tool for those of you who've somehow lost your Ethereum wallet password. 
-It's essentially a stripped-down version of [pyethsaletool](https://github.com/ethereum/pyethsaletool).  In addition you can read passwords in from a newline-delimited file, and/or can provide a specification
+It's essentially a stripped-down version of [pyethsaletool](https://github.com/ethereum/pyethsaletool).  In addition you can have passwords be read from a newline-delimited file, and/or provide a specification
 to be used to generate passwords. The multiprocessing library `joblib` is used to test out passwords using
 all the cores on your machine. 
 
