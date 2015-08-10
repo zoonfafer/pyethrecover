@@ -66,11 +66,11 @@ Say you're not sure if the president is addressed with a title,
 but if he is you're certain it's either "president" or "mister". 
 You would create a file `password_spec.txt` like so ...
 
-[
-    ('hello', 'bonjour', 'hola'),
-    ('', 'mister', 'president'),
-    ('smith', 'jefferson')
-]
+    [
+        ('hello', 'bonjour', 'hola'),
+        ('', 'mister', 'president'),
+        ('smith', 'jefferson')
+    ]
 
 and call it like so...
 
