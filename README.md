@@ -34,7 +34,7 @@ Let's say you have a wallet file named `ethereum-wallet.json` protected by the p
 
 If you run the utility like so...
 
-    ./pyethrecover.py -w ethereum-wallet.json -f passwords.txt
+    python pyethrecover.py -w ethereum-wallet.json -f passwords.txt
 
 ...you should get back something like this:
 
