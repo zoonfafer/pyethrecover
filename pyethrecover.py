@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 from __future__ import print_function
 import python_sha3
 import aes
@@ -68,34 +68,6 @@ try:
     import openssl
 except:
     openssl = None
-
-
-def openssl_tx_sign(tx, priv):
-    if len(priv) == 64:
-        priv = priv.decode('hex')
-    if openssl:
-        k = openssl.CKey()
-        k.generate(priv)
-        u = k.sign(bitcoin.bin_txhash(tx))
-        return u.encode('hex')
-    else:
-        return ecdsa_tx_sign(tx, priv)
-
-
-def secure_sign(tx, i, priv):
-    i = int(i)
-    if not re.match('^[0-9a-fA-F]*$', tx):
-        return sign(tx.encode('hex'), i, priv).decode('hex')
-    if len(priv) <= 33:
-        priv = priv.encode('hex')
-    pub = privkey_to_pubkey(priv)
-    address = pubkey_to_address(pub)
-    signing_tx = signature_form(tx, i, mk_pubkey_script(address))
-    sig = openssl_tx_sign(signing_tx, priv)
-    txobj = deserialize(tx)
-    txobj["ins"][i]["script"] = serialize_script([sig, pub])
-    return serialize(txobj)
-
 
 def secure_privtopub(priv):
     if len(priv) == 64:
