@@ -107,7 +107,6 @@ def getseed(encseed, pw, ethaddr):
         raise DecryptionException("AES Decryption error. Bad password?")
     try:
         ethpriv = sha3(seed)
-        eth_privtoaddr(ethpriv)
         assert eth_privtoaddr(ethpriv) == ethaddr
     except Exception, e:
         # print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
