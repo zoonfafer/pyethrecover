@@ -1,10 +1,9 @@
 import aes
 import binascii
+import bitcoin
 import python_sha3
 import pbkdf2 as PBKDF2
 from utils import encode_hex
-
-from bitcoin import privtopub, encode_pubkey
 
 # Prefer openssl because it's more well-tested and reviewed; otherwise,
 # use pybitcointools' internal ecdsa implementation
@@ -27,10 +26,10 @@ def secure_privtopub(priv):
         k.generate(priv)
         return k.get_pubkey()
     else:
-        return privtopub(priv)
+        return bitcoin.privtopub(priv)
 
 def eth_privtoaddr(priv):
-    pub = encode_pubkey(secure_privtopub(priv), 'bin_electrum')
+    pub = bitcoin.encode_pubkey(secure_privtopub(priv), 'bin_electrum')
     return encode_hex(sha3(pub)[12:])
 
 class DecryptionException(Exception):
