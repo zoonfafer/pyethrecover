@@ -1,15 +1,10 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import python_sha3
-import aes
 import os
 import sys
 import json
 import getpass
-import binascii
-import pbkdf2 as PBKDF2
-from bitcoin import privtopub, encode_pubkey
-from utils import encode_hex
+from recover_tools import getseed, pbkdf2, DecryptionException
 import traceback
 from joblib import Parallel, delayed
 import itertools
@@ -34,34 +29,6 @@ parser.add_option('-w', '--wallet',
 
 (options, args) = parser.parse_args()
 
-# Function wrappers
-
-def sha3(x):
-    return python_sha3.sha3_256(x).digest()
-
-
-def pbkdf2(x):
-    return PBKDF2._pbkdf2(x, x, 2000)[:16]
-
-
-# Prefer openssl because it's more well-tested and reviewed; otherwise,
-# use pybitcointools' internal ecdsa implementation
-try:
-    import openssl
-except:
-    openssl = None
-
-def secure_privtopub(priv):
-    if len(priv) == 64:
-        return secure_privtopub(priv.decode('hex')).encode('hex')
-    if openssl:
-        k = openssl.CKey()
-        k.generate(priv)
-        return k.get_pubkey()
-    else:
-        return privtopub(priv)
-
-
 def tryopen(f):
     try:
         assert f
@@ -72,31 +39,6 @@ def tryopen(f):
             raise Exception("Corrupted file: "+f)
     except:
         return None
-
-
-def eth_privtoaddr(priv):
-    pub = encode_pubkey(secure_privtopub(priv), 'bin_electrum')
-    return encode_hex(sha3(pub)[12:])
-
-
-class DecryptionException(Exception):
-    pass
-
-def getseed(encseed, pw, ethaddr):
-    try:
-        seed = aes.decryptData(pw, binascii.unhexlify(encseed))
-    except Exception, e:
-        raise DecryptionException("AES Decryption error. Bad password?")
-    try:
-        ethpriv = sha3(seed)
-        assert eth_privtoaddr(ethpriv) == ethaddr
-    except Exception, e:
-        # print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
-        # print ("ethadd = %s" % ethaddr)
-        # traceback.print_exc()
-        raise DecryptionException("Decryption failed. Bad password?")
-    return seed
-
 
 def list_passwords():
     if not options.pwfile:
@@ -168,7 +110,6 @@ def __main__():
     if options.pwsfile:
         grammar = eval(file(options.pwsfile, 'r').read())
         pwds = itertools.chain(pwds, generate_all(grammar,''))
-
 
     try:
         Parallel(n_jobs=-1)(delayed(attempt)(w, pw) for pw in pwds)
