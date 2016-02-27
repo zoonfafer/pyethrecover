@@ -3,7 +3,7 @@ import binascii
 import bitcoin
 import python_sha3
 import pbkdf2 as PBKDF2
-from utils import encode_hex
+from utils import encode_hex, decode_hex
 
 # Prefer openssl because it's more well-tested and reviewed; otherwise,
 # use pybitcointools' internal ecdsa implementation
@@ -20,7 +20,7 @@ def pbkdf2(x):
 
 def secure_privtopub(priv):
     if len(priv) == 64:
-        return secure_privtopub(priv.decode('hex')).encode('hex')
+        return encode_hex(secure_privtopub(decode_hex(priv)))
     if openssl:
         k = openssl.CKey()
         k.generate(priv)
