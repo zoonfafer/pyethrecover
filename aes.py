@@ -27,6 +27,8 @@ def strip_PKCS7_padding(s):
     numpads = ord(s[-1])
     if numpads > 16:
         raise ValueError("String ending with %r can't be PCKS7-padded" % s[-1])
+    if s[-numpads:] != numpads*chr(numpads):
+        raise ValueError("Invalid PKCS7 padding")
     return s[:-numpads]
 
 class AES(object):
@@ -640,9 +642,9 @@ def decryptData(key, data, mode=AESModeOfOperation.modeOfOperation["CBC"]):
 
 def generateRandomKey(keysize):
     """Generates a key from random data of length `keysize`.
-    
+
     The returned key is a string of bytes.
-    
+
     """
     if keysize not in (16, 24, 32):
         emsg = 'Invalid keysize, %s. Should be one of (16, 24, 32).'
