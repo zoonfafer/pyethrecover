@@ -8,7 +8,7 @@ import json
 import getpass
 import binascii
 import pbkdf2 as PBKDF2
-from bitcoin import *
+from bitcoin import privtopub, encode_pubkey
 from utils import decode_hex, encode_hex
 import traceback
 from joblib import Parallel, delayed
