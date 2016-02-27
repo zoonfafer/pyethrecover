@@ -14,11 +14,6 @@ import traceback
 from joblib import Parallel, delayed
 import itertools
 
-try:
-    from urllib2 import Request, urlopen
-except ImportError:
-    from urllib.request import Request, urlopen
-
 from optparse import OptionParser
 
 # Option parsing
@@ -41,19 +36,12 @@ parser.add_option('-w', '--wallet',
 
 # Function wrappers
 
-
 def sha3(x):
     return python_sha3.sha3_256(x).digest()
 
 
 def pbkdf2(x):
     return PBKDF2._pbkdf2(x, x, 2000)[:16]
-
-
-# Makes a request to a given URL (first arg) and optional params (second arg)
-def make_request(url, data, headers):
-    req = Request(url, data, headers)
-    return urlopen(req).read().strip()
 
 
 # Prefer openssl because it's more well-tested and reviewed; otherwise,
