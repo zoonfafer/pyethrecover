@@ -180,6 +180,8 @@ def generate_all(el, tr):
         yield tr
 
 def attempt(w, pw):
+    if len(pw) < 10:
+        return ""
     try:
         print (pw)
         raise PasswordFoundException(
