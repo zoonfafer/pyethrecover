@@ -13,6 +13,7 @@ from utils import decode_hex, encode_hex
 import traceback
 from joblib import Parallel, delayed
 import itertools
+import time
 
 try:
     from urllib2 import Request, urlopen
@@ -23,9 +24,8 @@ from optparse import OptionParser
 
 # Arguments
 
-exodus = '36PrZ1KHYMpqSyAQXSG8VwbUiq2EogxLo2'
-minimum = 1000000
-maximum = 150000000000
+passwordsTriedCount = 0
+startTime = 0
 
 # Option parsing
 
@@ -159,18 +159,6 @@ def ask_for_password():
 class PasswordFoundException(Exception):
     pass
 
-def crack(wallet_filename, grammar):
-    with file(wallet_filename, 'r') as f:
-        t = f.read()
-    w = json.loads(t)
-    try:
-        Parallel(n_jobs=-1)(delayed(attempt)(w, pw) for pw in generate_all(grammar,''))
-    except Exception, e:
-        traceback.print_exc()
-        while True:
-            sys.stdout.write('\a')
-            sys.stdout.flush()
-
 def generate_all(el, tr):
     if el:
         for j in xrange(len(el[0])):
@@ -180,12 +168,22 @@ def generate_all(el, tr):
         yield tr
 
 def attempt(w, pw):
+    # Return if password is too short
     if len(pw) < 10:
         return ""
+
+    # Attempt counting
+    global passwordsTriedCount
+    global startTime
+    if time.time() - startTime > 60:
+        startTime = time.time()
+        print("%d: %d" % (startTime, passwordsTriedCount))
+    passwordsTriedCount = passwordsTriedCount + 1
     try:
-        print (pw)
-        raise PasswordFoundException(
-            """\n\nYour seed is:\n%s\nYour password is:\n%s""" % (getseed(w['encseed'], pbkdf2(pw), w['ethaddr']), pw))
+        print("\n\nYour seed is:\n%s" % getseed(w['encseed'], pbkdf2(pw), w['ethaddr']))
+        print("\nYour password is:\n%s\n" % pw)
+        file = open(pw, 'w+')
+        raise PasswordFoundException("\nYour password is:\n%s\n" % pw)
 
     except DecryptionException as e:
         # print(e)
