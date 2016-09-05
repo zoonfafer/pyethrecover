@@ -54,18 +54,6 @@ def ask_for_password():
 class PasswordFoundException(Exception):
     pass
 
-def crack(wallet_filename, grammar):
-    with file(wallet_filename, 'r') as f:
-        t = f.read()
-    w = json.loads(t)
-    try:
-        Parallel(n_jobs=-1)(delayed(attempt)(w, pw) for pw in generate_all(grammar,''))
-    except Exception, e:
-        traceback.print_exc()
-        while True:
-            sys.stdout.write('\a')
-            sys.stdout.flush()
-
 def generate_all(el, tr):
     if el:
         for j in xrange(len(el[0])):
