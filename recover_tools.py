@@ -32,20 +32,8 @@ def eth_privtoaddr(priv):
     pub = bitcoin.encode_pubkey(secure_privtopub(priv), 'bin_electrum')
     return encode_hex(sha3(pub)[12:])
 
-class DecryptionException(Exception):
-    pass
-
 def getseed(encseed, pw, ethaddr):
-    try:
-        seed = aes.decryptData(pw, binascii.unhexlify(encseed))
-    except Exception, e:
-        raise DecryptionException("AES Decryption error. Bad password?")
-    try:
-        ethpriv = sha3(seed)
-        assert eth_privtoaddr(ethpriv) == ethaddr
-    except Exception, e:
-        # print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
-        # print ("ethadd = %s" % ethaddr)
-        # traceback.print_exc()
-        raise DecryptionException("Decryption failed. Bad password?")
-    return seed
+    seed = aes.decryptData(pw, binascii.unhexlify(encseed))
+    ethpriv = sha3(seed)
+    if eth_privtoaddr(ethpriv) == ethaddr:
+        return seed

@@ -4,7 +4,7 @@ import os
 import sys
 import json
 import getpass
-from recover_tools import getseed, pbkdf2, DecryptionException
+from recover_tools import getseed, pbkdf2
 import traceback
 from joblib import Parallel, delayed
 import itertools
@@ -61,13 +61,13 @@ def attempt(w, pw):
     if len(pw) < 10:
         return ""
     try:
-        print (pw)
-        raise PasswordFoundException(
-            """\n\nYour seed is:\n%s\nYour password is:\n%s""" % (getseed(w['encseed'], pbkdf2(pw), w['ethaddr']), pw))
+        seed = getseed(w['encseed'], pbkdf2(pw), w['ethaddr'])
+        if seed:
+            raise PasswordFoundException(
+                """\n\nYour seed is:\n%s\nYour password is:\n%s""" % (seed, pw))
 
-    except DecryptionException as e:
-        # print(e)
-        return ""
+    except ValueError:
+        return None
 
 def pwds():
     if not(options.pw or options.pwfile or options.pwsfile):
