@@ -33,6 +33,7 @@ def eth_privtoaddr(priv):
     return encode_hex(sha3(pub)[12:])
 
 def getseed(encseed, pw, ethaddr):
+    pw = pbkdf2(pw)
     seed = aes.decryptData(pw, binascii.unhexlify(encseed))
     ethpriv = sha3(seed)
     if eth_privtoaddr(ethpriv) == ethaddr:
