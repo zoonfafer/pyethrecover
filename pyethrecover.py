@@ -46,11 +46,6 @@ def list_passwords():
     with open(options.pwfile) as f:
         return f.read().splitlines()
 
-
-def ask_for_password():
-    return getpass.getpass()
-
-
 class PasswordFoundException(Exception):
     pass
 
