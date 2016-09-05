@@ -86,33 +86,32 @@ def attempt(w, pw):
         # print(e)
         return ""
 
+def pwds():
+    if not(options.pw or options.pwfile or options.pwsfile):
+        raise("No passwords specified! (-h for help)")
+
+    result = []
+
+    if options.pw:
+        result.append(options.pw)
+
+    if options.pwfile:
+        result.extend(list_passwords())
+
+    if options.pwsfile:
+        grammar = eval(file(options.pwsfile, 'r').read())
+        result = itertools.chain(result, generate_all(grammar,''))
+
+    return result
+
 def __main__():
     w = tryopen(options.wallet)
     if not w:
         print("Wallet file not found! (-h for help)")
         exit(1)
 
-    pwds = []
-
-    if not(options.pw or options.pwfile or options.pwsfile):
-        print("No passwords specified! (-h for help)")
-
-    if options.pw:
-        pwds.append(options.pw)
-
-    if options.pwfile:
-        try:
-            pwds.extend(list_passwords())
-        except:
-            print("Password file not found! (-h for help)")
-            exit(1)
-
-    if options.pwsfile:
-        grammar = eval(file(options.pwsfile, 'r').read())
-        pwds = itertools.chain(pwds, generate_all(grammar,''))
-
     try:
-        Parallel(n_jobs=-1)(delayed(attempt)(w, pw) for pw in pwds)
+        Parallel(n_jobs=-1)(delayed(attempt)(w, pw) for pw in pwds())
     except Exception, e:
         traceback.print_exc()
         while True:
