@@ -161,10 +161,34 @@ def generate_all(el, tr):
         yield tr
 
 
+def is_valid(pw):
+
+    if len(pw) <= 10:
+        return False
+
+    has_lower = False
+    has_upper = False
+    has_symbol = False
+    has_number = False
+    for char in pw:
+        if char.isdigit():
+            has_number = True
+        else:
+            if char.isalpha():
+                if char.isupper():
+                    has_upper = True
+                else:
+                    has_lower = True
+            else:
+                has_symbol = True
+
+    return has_lower and has_upper and has_symbol and has_number
+
+
 def attempt(w, pw, verbose):
     if not isinstance(pw, basestring):
         pw = ''.join(str(i) for i in pw)
-    if len(pw) < 10:
+    if not is_valid(pw):
         return ""
     try:
         if verbose > 0:
