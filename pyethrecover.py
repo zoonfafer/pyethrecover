@@ -9,8 +9,8 @@ from utils import encode_hex
 import traceback
 from joblib import Parallel, delayed
 import itertools
-
-from optparse import OptionParser
+import argparse
+import time
 
 # Arguments
 
@@ -20,27 +20,30 @@ maximum = 150000000000
 
 # Option parsing
 
-parser = OptionParser()
-parser.add_option('-p', '--password',
-                  default=None, dest='pw',
-                  help="A single password to try against the wallet.")
-parser.add_option('-f', '--passwords-file',
-                  default=None, dest='pwfile',
-                  help="A file containing a newline-delimited list of passwords to try. (default: %default)")
-parser.add_option('-s', '--password-spec-file',
-                  default=None, dest='pwsfile',
-                  help="A file containing a password specification")
-parser.add_option('-q', '--password-perm-file',
-                  default=None, dest='pwqfile',
-                  help="A file containing a password permutations specification")
-parser.add_option('-k', '--permutation-max-elements',
-                  default=2, dest='k',
-                  help="The maximum elements of permutations set to use to create a password")
-parser.add_option('-w', '--wallet',
-                  default='wallet.json', dest='wallet',
-                  help="The wallet against which to try the passwords. (default: %default)")
+parser = argparse.ArgumentParser(description="Pyeth recovery tool.")
+parser.add_argument('-p', '--password',
+                    default=None, dest='pw',
+                    help="A single password to try against the wallet.")
+parser.add_argument('-f', '--passwords-file',
+                    default=None, dest='pwfile',
+                    help="A file containing a newline-delimited list of passwords to try. (default: %default)")
+parser.add_argument('-s', '--password-spec-file',
+                    default=None, dest='pwsfile',
+                    help="A file containing a password specification")
+parser.add_argument('-q', '--password-perm-file',
+                    default=None, dest='pwqfile',
+                    help="A file containing a password permutations specification")
+parser.add_argument('-k', '--permutation-max-elements',
+                    default=2, dest='k', type=int,
+                    help="The maximum elements of permutations set to use to create a password")
+parser.add_argument('-w', '--wallet',
+                    default='wallet.json', dest='wallet',
+                    help="The wallet against which to try the passwords. (default: %default)")
 
-(options, args) = parser.parse_args()
+parser.add_argument("-v", "--verbose", action="count", default=0,
+                    help="Be more verbose.")
+
+options = parser.parse_args(sys.argv[1:])
 
 # Function wrappers
 
@@ -149,18 +152,6 @@ def ask_for_password():
 class PasswordFoundException(Exception):
     pass
 
-def crack(wallet_filename, grammar):
-    with file(wallet_filename, 'r') as f:
-        t = f.read()
-    w = json.loads(t)
-    try:
-        Parallel(n_jobs=-1)(delayed(attempt)(w, pw) for pw in generate_all(grammar,''))
-    except Exception, e:
-        traceback.print_exc()
-        while True:
-            sys.stdout.write('\a')
-            sys.stdout.flush()
-
 def generate_all(el, tr):
     if el:
         for j in xrange(len(el[0])):
@@ -169,19 +160,22 @@ def generate_all(el, tr):
     else:
         yield tr
 
-def attempt(w, pw):
+
+def attempt(w, pw, verbose):
     if not isinstance(pw, basestring):
         pw = ''.join(str(i) for i in pw)
     if len(pw) < 10:
         return ""
     try:
-        print (pw)
+        if verbose > 0:
+            print (pw)
         raise PasswordFoundException(
             """\n\nYour seed is:\n%s\nYour password is:\n%s""" % (getseed(w['encseed'], pbkdf2(pw), w['ethaddr']), pw))
 
     except DecryptionException as e:
         # print(e)
         return ""
+
 
 def __main__():
     w = tryopen(options.wallet)
@@ -206,20 +200,26 @@ def __main__():
 
     if options.pwsfile:
         grammar = eval(file(options.pwsfile, 'r').read())
-        pwds = itertools.chain(pwds, generate_all(grammar,''))
+        pwds = itertools.chain(pwds, generate_all(grammar, ''))
 
     if options.pwqfile:
         perms_tuple = eval(file(options.pwqfile, 'r').read())
         pwds = itertools.permutations(perms_tuple, options.k)
+        total = 1
+        for i in range(len(perms_tuple)-options.k, len(perms_tuple)):
+            total *= i
+        print("Total passwords to try: " + str(total))
 
-
+    start = time.time()
     try:
-        Parallel(n_jobs=-1)(delayed(attempt)(w, pw) for pw in pwds)
+        Parallel(n_jobs=-1)(delayed(attempt)(w, pw, options.verbose) for pw in pwds)
     except Exception, e:
         traceback.print_exc()
         while True:
             sys.stdout.write('\a')
             sys.stdout.flush()
+
+    print("elapsed: " + str(time.time()-start))
 
 if __name__ == "__main__":
     __main__()
