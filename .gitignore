@@ -2,3 +2,5 @@
 *.sw*
 *.json
 *.txt
+.idea/
+venv/

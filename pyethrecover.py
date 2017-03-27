@@ -2,22 +2,13 @@
 from __future__ import print_function
 import python_sha3
 import aes
-import os
-import sys
-import json
 import getpass
-import binascii
 import pbkdf2 as PBKDF2
 from bitcoin import *
-from utils import decode_hex, encode_hex
+from utils import encode_hex
 import traceback
 from joblib import Parallel, delayed
 import itertools
-
-try:
-    from urllib2 import Request, urlopen
-except ImportError:
-    from urllib.request import Request, urlopen
 
 from optparse import OptionParser
 
@@ -39,6 +30,12 @@ parser.add_option('-f', '--passwords-file',
 parser.add_option('-s', '--password-spec-file',
                   default=None, dest='pwsfile',
                   help="A file containing a password specification")
+parser.add_option('-q', '--password-perm-file',
+                  default=None, dest='pwqfile',
+                  help="A file containing a password permutations specification")
+parser.add_option('-k', '--permutation-max-elements',
+                  default=2, dest='k',
+                  help="The maximum elements of permutations set to use to create a password")
 parser.add_option('-w', '--wallet',
                   default='wallet.json', dest='wallet',
                   help="The wallet against which to try the passwords. (default: %default)")
@@ -54,13 +51,6 @@ def sha3(x):
 
 def pbkdf2(x):
     return PBKDF2._pbkdf2(x, x, 2000)[:16]
-
-
-# Makes a request to a given URL (first arg) and optional params (second arg)
-def make_request(url, data, headers):
-    req = Request(url, data, headers)
-    return urlopen(req).read().strip()
-
 
 # Prefer openssl because it's more well-tested and reviewed; otherwise,
 # use pybitcointools' internal ecdsa implementation
@@ -180,6 +170,8 @@ def generate_all(el, tr):
         yield tr
 
 def attempt(w, pw):
+    if not isinstance(pw, basestring):
+        pw = ''.join(str(i) for i in pw)
     if len(pw) < 10:
         return ""
     try:
@@ -199,7 +191,7 @@ def __main__():
 
     pwds = []
 
-    if not(options.pw or options.pwfile or options.pwsfile):
+    if not(options.pw or options.pwfile or options.pwsfile or options.pwqfile):
         print("No passwords specified! (-h for help)")
 
     if options.pw:
@@ -215,6 +207,10 @@ def __main__():
     if options.pwsfile:
         grammar = eval(file(options.pwsfile, 'r').read())
         pwds = itertools.chain(pwds, generate_all(grammar,''))
+
+    if options.pwqfile:
+        perms_tuple = eval(file(options.pwqfile, 'r').read())
+        pwds = itertools.permutations(perms_tuple, options.k)
 
 
     try:
