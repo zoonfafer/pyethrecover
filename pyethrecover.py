@@ -264,7 +264,7 @@ def __main__():
         for i in range(len(perms_tuple)-options.k, len(perms_tuple)):
             total *= i
         print("Total passwords to try: " + str(total))
-        print("Expected day at 500/s: %.5f" % ((((total/100.0)/60)/60)/24))
+        print("Expected day at 500/s: %.5f" % ((((total/500.0)/60)/60)/24))
 
     start = time.time()
     try:
