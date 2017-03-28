@@ -153,7 +153,7 @@ def getseed(encseed, pw, ethaddr):
 	'''
 	# FROM pycryptodome aes-ni
 	try:
-		seed = decrypt(pw, binascii.unhexlify(encseed))
+		seed = decrypt(binascii.unhexlify(encseed),pw)
 	except Exception, e:
 		raise DecryptionException("AES Decryption error. Bad password?")
     
