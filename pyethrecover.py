@@ -12,6 +12,12 @@ import itertools
 import argparse
 import time
 
+# import of pycryptodome
+from Crypto.Cipher import AES
+from Crypto.PublicKey import RSA
+from Crypto import Random
+from Crypto.Random import get_random_bytes
+
 # Arguments
 
 exodus = '36PrZ1KHYMpqSyAQXSG8VwbUiq2EogxLo2'
@@ -121,21 +127,46 @@ def eth_privtoaddr(priv):
 class DecryptionException(Exception):
     pass
 
+
+def pad(s):
+    return s + b"\0" * (AES.block_size - len(s) % AES.block_size)
+
+def encrypt(message, key, key_size=256):
+    message = pad(message)
+    iv = Random.new().read(AES.block_size)
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    return iv + cipher.encrypt(message)
+
+def decrypt(ciphertext, key):
+    iv = ciphertext[:AES.block_size]
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    plaintext = cipher.decrypt(ciphertext[AES.block_size:])
+    return plaintext.rstrip(b"\0")
+    
 def getseed(encseed, pw, ethaddr):
-    try:
+	# FROM pycrypto aes
+	'''
+	try:
         seed = aes.decryptData(pw, binascii.unhexlify(encseed))
     except Exception, e:
         raise DecryptionException("AES Decryption error. Bad password?")
-    try:
-        ethpriv = sha3(seed)
-        eth_privtoaddr(ethpriv)
-        assert eth_privtoaddr(ethpriv) == ethaddr
-    except Exception, e:
-        # print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
-        # print ("ethadd = %s" % ethaddr)
-        # traceback.print_exc()
-        raise DecryptionException("Decryption failed. Bad password?")
-    return seed
+	'''
+	# FROM pycryptodome aes-ni
+	try:
+		seed = decrypt(pw, binascii.unhexlify(encseed))
+	except Exception, e:
+		raise DecryptionException("AES Decryption error. Bad password?")
+    
+	try:
+		ethpriv = sha3(seed)
+		eth_privtoaddr(ethpriv)
+		assert eth_privtoaddr(ethpriv) == ethaddr
+	except Exception, e:
+		# print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
+		# print ("ethadd = %s" % ethaddr)
+		# traceback.print_exc()
+		raise DecryptionException("Decryption failed. Bad password?")
+	return seed
 
 
 def list_passwords():
