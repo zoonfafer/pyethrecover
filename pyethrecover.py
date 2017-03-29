@@ -141,8 +141,8 @@ def decrypt(ciphertext, key):
     iv = ciphertext[:AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
-    return plaintext;
-    #return plaintext.rstrip(b"\0")
+    plaintext = aes.strip_PKCS7_padding(plaintext)  
+    return plaintext.rstrip(b"\0")
     
 def getseed(encseed, pw, ethaddr):
 	# FROM pycrypto aes
@@ -151,22 +151,29 @@ def getseed(encseed, pw, ethaddr):
     #except Exception, e:
     #    raise DecryptionException("AES Decryption error. Bad password?")
 
-	# FROM pycryptodome aes-ni
+    # FROM pycryptodome aes-ni
     try:
         seed = decrypt(binascii.unhexlify(encseed),pw)
+        if seed is None:
+            raise DecryptionException("AES Decryption error. Bad password?")
+        if len(seed) == 0:
+            raise DecryptionException("AES Decryption error. Bad password?")
+
     except Exception, e:
         raise DecryptionException("AES Decryption error. Bad password?")
-    
-	try:
-		ethpriv = sha3(seed)
-		eth_privtoaddr(ethpriv)
-		assert eth_privtoaddr(ethpriv) == ethaddr
-	except Exception, e:
-		# print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
-		# print ("ethadd = %s" % ethaddr)
-		# traceback.print_exc()
-		raise DecryptionException("Decryption failed. Bad password?")
-	return seed
+
+    try:
+        ethpriv = sha3(seed)
+        eth_privtoaddr(ethpriv)
+        #print ("ethaddr:%s"%ethaddr)
+        #print ("eth_privtoaddr:%s"%eth_privtoaddr(ethpriv))
+        assert eth_privtoaddr(ethpriv) == ethaddr
+    except Exception, e:
+        # print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
+        # print ("ethadd = %s" % ethaddr)
+        # traceback.print_exc()
+        raise DecryptionException("Decryption failed. Bad password?")
+    return seed
 
 
 def list_passwords():
