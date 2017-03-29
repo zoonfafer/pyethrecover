@@ -141,21 +141,21 @@ def decrypt(ciphertext, key):
     iv = ciphertext[:AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
-    return plaintext.rstrip(b"\0")
+    return plaintext;
+    #return plaintext.rstrip(b"\0")
     
 def getseed(encseed, pw, ethaddr):
 	# FROM pycrypto aes
-	'''
-	try:
-        seed = aes.decryptData(pw, binascii.unhexlify(encseed))
+    #try:
+    #    seed = aes.decryptData(pw, binascii.unhexlify(encseed))
+    #except Exception, e:
+    #    raise DecryptionException("AES Decryption error. Bad password?")
+
+	# FROM pycryptodome aes-ni
+    try:
+        seed = decrypt(binascii.unhexlify(encseed),pw)
     except Exception, e:
         raise DecryptionException("AES Decryption error. Bad password?")
-	'''
-	# FROM pycryptodome aes-ni
-	try:
-		seed = decrypt(binascii.unhexlify(encseed),pw)
-	except Exception, e:
-		raise DecryptionException("AES Decryption error. Bad password?")
     
 	try:
 		ethpriv = sha3(seed)
