@@ -1,12 +1,36 @@
 import binascii
 import aes
 import pbkdf2 as PBKDF2
+import python_sha3
+from utils import encode_hex
+from bitcoin import *
 
 # import of pycryptodome
 from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
 from Crypto import Random
 from Crypto.Random import get_random_bytes
+
+try:
+    import openssl
+except:
+    openssl = None
+
+def eth_privtoaddr(priv):
+    pub = encode_pubkey(secure_privtopub(priv), 'bin_electrum')
+    return encode_hex(sha3(pub)[12:])
+def secure_privtopub(priv):
+    if len(priv) == 64:
+        return secure_privtopub(priv.decode('hex')).encode('hex')
+    if openssl:
+        k = openssl.CKey()
+        k.generate(priv)
+        return k.get_pubkey()
+    else:
+        return privtopub(priv)
+
+def sha3(x):
+    return python_sha3.sha3_256(x).digest()
 
 
 def pad(s):
@@ -22,8 +46,10 @@ def decrypt(ciphertext, key):
     iv = ciphertext[:AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
-    return plaintext.rstrip(b"\0")
-    
+    plaintext = aes.strip_PKCS7_padding(plaintext)
+    return plaintext.rstrip(b"\x07")
+  
+  
 def pbkdf2(x):
     return PBKDF2._pbkdf2(x, x, 2000)[:16]
 
@@ -35,20 +61,41 @@ seed = "oznszcw6irhg7reba2xauvwi3btr3qhztmkdljkmimbzw3dqwkq3daf2wlm3kj5f2cidsxel
 
 print ("pw = %s "% binascii.hexlify( pbkdf2(password)))
 print ("encseed = %s "%binascii.hexlify(encseed))
-print ("seed = %s "%seed)
-
+print ("seed[%d] = %s "%(len(seed),seed))
 
 print ("DECRYPTION aes.py")
 try:
     decrypted = aes.decryptData( pw, encseed )
-    print ("decrypted = %s" % decrypted)
+    print ("decrypted[%d] = %s" % (len(decrypted),decrypted))
 except Exception, e:
     decrypted = ""
     print("AES Decryption error. Bad password?")
 
+if seed == decrypted:
+	print("OK")
+else:
+	print("KO")
+
 print ("DECRYPTION pycryptodome")
 decrypted = decrypt(encseed,pw)
-print ("decrypted = %s" % decrypted )
+print ("decrypted[%d] = %s" % (len(decrypted),binascii.hexlify(decrypted)) )
+if seed == decrypted:
+        print("OK")
+else:
+        print("KO")
+
+print("ETH TEST")
+seed = decrypted
+ethaddr = "9dd46b1c6d3f05e29e9c6f037eed9a595af4a9aa" 
+
+ethpriv = sha3(seed)
+eth_privtoaddr(ethpriv)
+print ("ethaddr = %s"%ethaddr)
+print ("eth_privtoaddr = %s"%eth_privtoaddr(ethpriv))
+if eth_privtoaddr(ethpriv) == ethaddr:
+	print ("OK")
+else:
+	print ("KO")
 
 '''
 # FROM pycrypto aes
