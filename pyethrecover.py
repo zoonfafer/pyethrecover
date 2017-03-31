@@ -12,17 +12,9 @@ import itertools
 import argparse
 import time
 
-# import of pycryptodome
 from Crypto.Cipher import AES
-from Crypto.PublicKey import RSA
 from Crypto import Random
-from Crypto.Random import get_random_bytes
 
-# Arguments
-
-exodus = '36PrZ1KHYMpqSyAQXSG8VwbUiq2EogxLo2'
-minimum = 1000000
-maximum = 150000000000
 
 # Option parsing
 
@@ -141,21 +133,16 @@ def encrypt(message, key, key_size=256):
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return iv + cipher.encrypt(message)
 
+
 def decrypt(ciphertext, key):
     iv = ciphertext[:AES.block_size]
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
     plaintext = aes.strip_PKCS7_padding(plaintext)  
     return plaintext.rstrip(b"\0")
-    
-def getseed(encseed, pw, ethaddr):
-	# FROM pycrypto aes
-    #try:
-    #    seed = aes.decryptData(pw, binascii.unhexlify(encseed))
-    #except Exception, e:
-    #    raise DecryptionException("AES Decryption error. Bad password?")
 
-    # FROM pycryptodome aes-ni
+
+def getseed(encseed, pw, ethaddr):
     try:
         seed = decrypt(binascii.unhexlify(encseed),pw)
         if seed is None:
@@ -169,8 +156,8 @@ def getseed(encseed, pw, ethaddr):
     try:
         ethpriv = sha3(seed)
         eth_privtoaddr(ethpriv)
-        #print ("ethaddr:%s"%ethaddr)
-        #print ("eth_privtoaddr:%s"%eth_privtoaddr(ethpriv))
+        # print ("ethaddr:%s"%ethaddr)
+        # print ("eth_privtoaddr:%s"%eth_privtoaddr(ethpriv))
         assert eth_privtoaddr(ethpriv) == ethaddr
     except Exception, e:
         # print ("eth_priv = %s" % eth_privtoaddr(ethpriv))
@@ -193,6 +180,7 @@ def ask_for_password():
 
 class PasswordFoundException(Exception):
     pass
+
 
 def generate_all(el, tr):
     if el:
