@@ -45,9 +45,13 @@ parser.add_argument('-k', '--permutation-max-elements',
 parser.add_argument('-w', '--wallet',
                     default='wallet.json', dest='wallet',
                     help="The wallet against which to try the passwords. (default: %default)")
+parser.add_argument('-t', '--threads',
+                    default=-1, dest='t', type=int,
+                    help="Number of threads")
 
 parser.add_argument("-v", "--verbose", action="count", default=0,
                     help="Be more verbose.")
+
 
 options = parser.parse_args(sys.argv[1:])
 
@@ -268,7 +272,7 @@ def __main__():
 
     start = time.time()
     try:
-        Parallel(n_jobs=-1)(delayed(attempt)(w, pw, options.verbose) for pw in pwds)
+        Parallel(n_jobs=options.t)(delayed(attempt)(w, pw, options.verbose) for pw in pwds)
     except Exception, e:
         traceback.print_exc()
         while True:
