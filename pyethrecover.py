@@ -211,7 +211,7 @@ def __main__():
             exit(1)
 
     if options.pwsfile:
-        grammar = eval(file(options.pwsfile, 'r').read())
+        grammar = eval(open(options.pwsfile, 'r').read())
         pwds = itertools.chain(pwds, generate_all(grammar,''))
 
 
