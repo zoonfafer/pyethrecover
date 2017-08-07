@@ -1,4 +1,4 @@
-import os, json, pyethereum, random, aes
+import os, json, ethereum, random, aes
 import pbkdf2 as PBKDF2
 from bitcoin import *
 
