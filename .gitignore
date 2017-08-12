@@ -1,3 +1,6 @@
 *.pyc
 *.sw*
 *.json
+*.txt
+.idea/
+venv/
