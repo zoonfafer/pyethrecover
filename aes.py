@@ -602,7 +602,7 @@ def encryptData(key, data, mode=AESModeOfOperation.modeOfOperation["CBC"], iv=No
     vector.
 
     """
-    key = toInts(ord, key)
+    key = toInts(key)
     if mode == AESModeOfOperation.modeOfOperation["CBC"]:
         data = append_PKCS7_padding(data)
     keysize = len(key)
