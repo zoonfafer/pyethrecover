@@ -62,8 +62,8 @@ Example2
 Let's say you have a wallet file named `ethereum-wallet.json` 
 and you remember that you password is a greeting in some 
 language followed by the name of an american president. 
-Say you're not sure if the president is addressed with a title, 
-but if he is you're certain it's either "president" or "mister". 
+Say you're not sure if the president is addressed with a title; 
+if he is, you're certain it's either "president" or "mister". 
 You would create a file `password_spec.txt` like so ...
 
     [
@@ -76,5 +76,5 @@ and call it like so...
 
     ./pyethrecover.py -w ethereum-wallet.json -s password_spec.txt
 
-Check out the comments in the `password_spec.txt` file for more details
+Check out the comments in `password_spec.txt` for more details
 

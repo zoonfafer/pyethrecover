@@ -160,7 +160,7 @@ class PasswordFoundException(Exception):
     pass
 
 def crack(wallet_filename, grammar):
-    with file(wallet_filename, 'r') as f:
+    with open(wallet_filename, 'r') as f:
         t = f.read()
     w = json.loads(t)
     try:
@@ -213,7 +213,7 @@ def __main__():
             exit(1)
 
     if options.pwsfile:
-        grammar = eval(file(options.pwsfile, 'r').read())
+        grammar = eval(open(options.pwsfile, 'r').read())
         pwds = itertools.chain(pwds, generate_all(grammar,''))
 
 
