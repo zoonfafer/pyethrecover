@@ -8,8 +8,14 @@ from recover_tools import getseed
 import traceback
 from joblib import Parallel, delayed
 import itertools
+import time
 
 from optparse import OptionParser
+
+# Arguments
+
+passwordsTriedCount = 0
+startTime = 0
 
 # Option parsing
 
@@ -58,8 +64,17 @@ def generate_all(el, tr):
         yield tr
 
 def attempt(w, pw):
+    # Return if password is too short
     if len(pw) < 10:
         return ""
+
+    # Attempt counting
+    global passwordsTriedCount
+    global startTime
+    if time.time() - startTime > 60:
+        startTime = time.time()
+        print("%d: %d" % (startTime, passwordsTriedCount))
+    passwordsTriedCount = passwordsTriedCount + 1
     try:
         seed = getseed(w['encseed'], pw, w['ethaddr'])
         if seed:
