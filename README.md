@@ -1,21 +1,27 @@
 pyethrecover
 ============
 
-This is a tool for those of you who've somehow lost your Ethereum wallet password. 
-It's essentially a stripped-down version of [pyethsaletool](https://github.com/ethereum/pyethsaletool).  In addition you can have passwords be read from a newline-delimited file, and/or provide a specification
-to be used to generate passwords. The multiprocessing library `joblib` is used to test out passwords using
-all the cores on your machine. 
+This is a tool for those of you who've somehow lost your Ethereum wallet
+password.  It's essentially a stripped-down version of
+[pyethsaletool](https://github.com/ethereum/pyethsaletool).  In addition you can
+have passwords be read from a newline-delimited file, and/or provide a
+specification to be used to generate passwords. The multiprocessing library
+`joblib` is used to test out passwords using all the cores on your machine.
 
-This tool is compatible with both Python 2 and Python 3. It depends on the following libraries
-    
-    joblib
-    bitcoin
+This tool is compatible with both Python 2 and Python 3. Its dependencies can be
+found in
+[requirements.txt](https://github.com/ryepdx/pyethrecover/blob/master/requirements.txt).
+
+Installing all the dependencies at once can be accomplished with
+```
+pip install -r requirements.txt
+```
 
 Summary
 =======
 
     Usage: pyethrecover.py [options]
-    
+
     Options:
       -h, --help            show this help message and exit
       -p PW, --password=PW  A single password to try against the wallet.
@@ -27,9 +33,9 @@ Summary
       -w WALLET, --wallet=WALLET
                             The wallet against which to try the passwords.
                             (default: wallet.json)
-    
 
-Example1
+
+Example 1
 =======
 
 Let's say you have a wallet file named `ethereum-wallet.json` protected by the password `correct horse battery staple`. You enter your guesses into a file named `passwords.txt`, like so:
@@ -57,13 +63,13 @@ If you run the utility like so...
     Your password is:
     correct horse battery staple
 
-Example2
+Example 2
 =======
-Let's say you have a wallet file named `ethereum-wallet.json` 
-and you remember that you password is a greeting in some 
-language followed by the name of an american president. 
-Say you're not sure if the president is addressed with a title; 
-if he is, you're certain it's either "president" or "mister". 
+Let's say you have a wallet file named `ethereum-wallet.json`
+and you remember that you password is a greeting in some
+language followed by the name of an american president.
+Say you're not sure if the president is addressed with a title;
+if he is, you're certain it's either "president" or "mister".
 You would create a file `password_spec.txt` like so ...
 
     [
