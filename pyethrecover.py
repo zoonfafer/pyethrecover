@@ -170,7 +170,7 @@ def __main__():
         Parallel(n_jobs=options.t)(
                 delayed(attempt)(w, pw, options.verbose) for pw in pwds())
 
-    except Exception, e:
+    except Exception as e:
         traceback.print_exc()
         while True:
             sys.stdout.write('\a')

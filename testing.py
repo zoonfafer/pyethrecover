@@ -48,8 +48,8 @@ def decrypt(ciphertext, key):
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
     plaintext = aes.strip_PKCS7_padding(plaintext)
     return plaintext.rstrip(b"\x07")
-  
-  
+
+
 def pbkdf2(x):
     return PBKDF2._pbkdf2(x, x, 2000)[:16]
 
@@ -67,7 +67,7 @@ print ("DECRYPTION aes.py")
 try:
     decrypted = aes.decryptData( pw, encseed )
     print ("decrypted[%d] = %s" % (len(decrypted),decrypted))
-except Exception, e:
+except Exception as e:
     decrypted = ""
     print("AES Decryption error. Bad password?")
 
@@ -86,7 +86,7 @@ else:
 
 print("ETH TEST")
 seed = decrypted
-ethaddr = "9dd46b1c6d3f05e29e9c6f037eed9a595af4a9aa" 
+ethaddr = "9dd46b1c6d3f05e29e9c6f037eed9a595af4a9aa"
 
 ethpriv = sha3(seed)
 eth_privtoaddr(ethpriv)
