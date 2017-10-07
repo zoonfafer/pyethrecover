@@ -121,10 +121,6 @@ def attempt(w, pw, verbose):
             raise PasswordFoundException(
                 """\n\nYour seed is:\n%s\nYour password is:\n%s""" % (seed, pw))
 
-    except DecryptionException as e:
-        # print(e)
-        return ""
-
     except ValueError:
         return None
 
