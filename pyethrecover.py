@@ -75,28 +75,6 @@ def generate_all(el, tr):
     else:
         yield tr
 
-def is_valid(pw):
-    if len(pw) <= 10:
-        return False
-
-    has_lower = False
-    has_upper = False
-    has_symbol = False
-    has_number = False
-    for char in pw:
-        if char.isdigit():
-            has_number = True
-        else:
-            if char.isalpha():
-                if char.isupper():
-                    has_upper = True
-                else:
-                    has_lower = True
-            else:
-                has_symbol = True
-
-    return has_lower and has_upper and has_symbol and has_number
-
 def attempt(w, pw, verbose):
     # Attempt counting
     global passwordsTriedCount
@@ -105,9 +83,6 @@ def attempt(w, pw, verbose):
 
     if not isinstance(pw, basestring):
         pw = ''.join(str(i) for i in pw)
-
-    if not is_valid(pw):
-        return ""
 
     if verbose > 0:
         print (pw)
