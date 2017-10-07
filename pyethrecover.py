@@ -15,7 +15,7 @@ from recover_tools import encode_hex, getseed
 # Arguments
 
 passwordsTriedCount = 0
-startTime = 0
+lastAttempt = 0
 
 # Option parsing
 
@@ -100,7 +100,7 @@ def is_valid(pw):
 def attempt(w, pw, verbose):
     # Attempt counting
     global passwordsTriedCount
-    global startTime
+    global lastAttempt
     passwordsTriedCount = passwordsTriedCount + 1
 
     if not isinstance(pw, basestring):
@@ -111,9 +111,9 @@ def attempt(w, pw, verbose):
 
     if verbose > 0:
         print (pw)
-    elif time.time() - startTime > 60:
-        startTime = time.time()
-        print("%d: %d" % (startTime, passwordsTriedCount))
+    elif time.time() - lastAttempt > 60:
+        lastAttempt = time.time()
+        print("Passwords tried so far: %d" % passwordsTriedCount)
 
     try:
         seed = getseed(w['encseed'], pw, w['ethaddr'])
@@ -152,6 +152,7 @@ def pwds():
     return result
 
 def __main__():
+    global lastAttempt
     w = tryopen(options.wallet)
     if not w:
         print("Wallet file not found! (-h for help)")
@@ -162,11 +163,11 @@ def __main__():
         exit(1)
 
     start = time.time()
+    lastAttempt = start
 
     try:
         Parallel(n_jobs=options.t)(
                 delayed(attempt)(w, pw, options.verbose) for pw in pwds())
-
     except Exception as e:
         traceback.print_exc()
         sys.stdout.write('\a')
