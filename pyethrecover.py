@@ -13,11 +13,6 @@ from joblib import Parallel, delayed
 from optparse import OptionParser
 from recover_tools import encode_hex, getseed
 
-# Arguments
-
-passwordsTriedCount = 0
-lastAttempt = 0
-
 # Option parsing
 
 parser = argparse.ArgumentParser(description="Pyeth recovery tool.")
@@ -77,19 +72,11 @@ def generate_all(el, tr):
         yield tr
 
 def attempt(w, pw, verbose):
-    # Attempt counting
-    global passwordsTriedCount
-    global lastAttempt
-    passwordsTriedCount = passwordsTriedCount + 1
-
     if not isinstance(pw, basestring):
         pw = ''.join(str(i) for i in pw)
 
     if verbose > 0:
         print (pw)
-    elif time.time() - lastAttempt > 60:
-        lastAttempt = time.time()
-        print("Passwords tried so far: %d" % passwordsTriedCount)
 
     try:
         if 'encseed' in w:
@@ -101,6 +88,7 @@ def attempt(w, pw, verbose):
             print(
                 """\n\nYour seed is:\n%s\n\nYour password is:\n%s\n""" %
                 (encode_hex(seed), pw))
+            raise PasswordFoundException()
 
     except ValueError:
         return None
@@ -132,8 +120,8 @@ def pwds():
     return result
 
 def __main__():
-    global lastAttempt
     w = tryopen(options.wallet)
+
     if not w:
         print("Wallet file not found! (-h for help)")
         exit(1)
@@ -143,11 +131,15 @@ def __main__():
         exit(1)
 
     start = time.time()
-    lastAttempt = start
 
     try:
         Parallel(n_jobs=options.t)(
                 delayed(attempt)(w, pw, options.verbose) for pw in pwds())
+        print("None of the passwords worked.")
+
+    except PasswordFoundException as e:
+        pass
+
     except Exception as e:
         traceback.print_exc()
         sys.stdout.write('\a')
