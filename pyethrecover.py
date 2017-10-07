@@ -8,6 +8,7 @@ import traceback
 import itertools
 import time
 
+from ethereum.tools.keys import decode_keystore_json
 from joblib import Parallel, delayed
 from optparse import OptionParser
 from recover_tools import encode_hex, getseed
@@ -91,7 +92,11 @@ def attempt(w, pw, verbose):
         print("Passwords tried so far: %d" % passwordsTriedCount)
 
     try:
-        seed = getseed(w['encseed'], pw, w['ethaddr'])
+        if 'encseed' in w:
+            seed = getseed(w['encseed'], pw, w['ethaddr'])
+        else:
+            seed = decode_keystore_json(w, pw)
+
         if seed:
             print(
                 """\n\nYour seed is:\n%s\n\nYour password is:\n%s\n""" %
