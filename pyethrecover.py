@@ -10,7 +10,7 @@ import time
 
 from joblib import Parallel, delayed
 from optparse import OptionParser
-from recover_tools import getseed
+from recover_tools import encode_hex, getseed
 
 # Arguments
 
@@ -118,8 +118,9 @@ def attempt(w, pw, verbose):
     try:
         seed = getseed(w['encseed'], pw, w['ethaddr'])
         if seed:
-            raise PasswordFoundException(
-                """\n\nYour seed is:\n%s\nYour password is:\n%s""" % (seed, pw))
+            print(
+                """\n\nYour seed is:\n%s\n\nYour password is:\n%s\n""" %
+                (encode_hex(seed), pw))
 
     except ValueError:
         return None
