@@ -168,9 +168,8 @@ def __main__():
 
     except Exception as e:
         traceback.print_exc()
-        while True:
-            sys.stdout.write('\a')
-            sys.stdout.flush()
+        sys.stdout.write('\a')
+        sys.stdout.flush()
 
     print("elapsed: " + str(time.time()-start))
 
