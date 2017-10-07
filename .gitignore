@@ -1,5 +1,6 @@
 *.pyc
 *.sw*
+!test_wallets/*.json
 *.json
 *.txt
 .idea/
