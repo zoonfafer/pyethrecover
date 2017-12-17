@@ -65,14 +65,15 @@ class PasswordFoundException(Exception):
 
 def generate_all(el, tr):
     if el:
-        for j in xrange(len(el[0])):
+        for j in range(len(el[0])):
             for w in generate_all(el[1:], tr + el[0][j]):
                 yield w
     else:
         yield tr
 
 def attempt(w, pw, verbose):
-    if not isinstance(pw, basestring):
+    print("Attempting password: %s" % pw)
+    if not isinstance(pw, str):
         pw = ''.join(str(i) for i in pw)
 
     if verbose > 0:
@@ -103,11 +104,11 @@ def pwds():
         result.extend(list_passwords())
 
     if options.pwsfile:
-        grammar = eval(file(options.pwsfile, 'r').read())
+        grammar = eval(open(options.pwsfile, 'r').read())
         result = itertools.chain(result, generate_all(grammar,''))
 
     if options.pwqfile:
-        perms_tuple = eval(file(options.pwqfile, 'r').read())
+        perms_tuple = eval(open(options.pwqfile, 'r').read())
         result = itertools.chain(
                 result,
                 itertools.permutations(perms_tuple, options.k))
