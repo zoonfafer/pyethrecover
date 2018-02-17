@@ -11,5 +11,6 @@ install:
 script:
   - ./test_wallets.sh
 
-allow_failures:
-  - python: "3.7-dev"
+matrix:
+  allow_failures:
+    - python: "3.7-dev"
