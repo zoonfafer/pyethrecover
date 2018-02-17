@@ -2,6 +2,8 @@ pyethrecover
 ============
 
 [![Build Status](https://travis-ci.org/zoonfafer/pyethrecover.svg?branch=master)](https://travis-ci.org/zoonfafer/pyethrecover)
+[![Maintainability](https://api.codeclimate.com/v1/badges/3faddae53e98d4f2265c/maintainability)](https://codeclimate.com/github/zoonfafer/pyethrecover/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/3faddae53e98d4f2265c/test_coverage)](https://codeclimate.com/github/zoonfafer/pyethrecover/test_coverage)
 
 This is a tool for those of you who've somehow lost your Ethereum wallet
 password.  It's essentially a stripped-down version of
