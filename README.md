@@ -1,6 +1,8 @@
 pyethrecover
 ============
 
+[![Build Status](https://travis-ci.org/zoonfafer/pyethrecover.svg?branch=master)](https://travis-ci.org/zoonfafer/pyethrecover)
+
 This is a tool for those of you who've somehow lost your Ethereum wallet
 password.  It's essentially a stripped-down version of
 [pyethsaletool](https://github.com/ethereum/pyethsaletool).  In addition you can
